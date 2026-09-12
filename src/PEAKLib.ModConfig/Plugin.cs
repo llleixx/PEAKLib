@@ -126,14 +126,14 @@ public partial class ModConfigPlugin : BaseUnityPlugin
                 .SetPosition(new Vector2(120f, -160f))
                 .SetWidth(120f);
 
+            // Vanilla SettingsPageShared/Content stretches with the page. Its offsets round to
+            // left 428, right 131, top 70, bottom 31 UI units in both main and pause menus.
             var content = new GameObject("Content")
                 .AddComponent<PeakElement>()
                 .ParentTo(modSettingsPage)
-                .SetPivot(new Vector2(0, 1))
-                .SetAnchorMin(new Vector2(0, 1))
-                .SetAnchorMax(new Vector2(0, 1))
-                .SetPosition(new Vector2(428, -70))
-                .SetSize(new Vector2(1360, 980));
+                .ExpandToParent()
+                .SetOffsetMin(new Vector2(428f, 31f))
+                .SetOffsetMax(new Vector2(-131f, -70f));
 
             var settingsMenu = content.gameObject.AddComponent<ModSettingsMenu>();
             settingsMenu.MainPage = modSettingsPage;
@@ -169,8 +169,10 @@ public partial class ModConfigPlugin : BaseUnityPlugin
             var horizontalTabs = new GameObject("TABS")
                 .ParentTo(content)
                 .AddComponent<PeakHorizontalTabs>();
-            horizontalTabs.RectTransform.anchoredPosition = new(110f, 0f);
-            horizontalTabs.RectTransform.anchorMax = new(0.92f, 1f); //give space for labels
+            // PeakHorizontalTabs already uses vanilla's top stretch anchors and 40-unit height.
+            // Inset only the left edge for the label; keep the right edge inside Content.
+            horizontalTabs.RectTransform.offsetMin = new Vector2(110f, -40f);
+            horizontalTabs.RectTransform.offsetMax = Vector2.zero;
 
             var modTabsLabel = MenuAPI.CreateText("MODS").ParentTo(content).SetPosition(new(4, 10));
 
@@ -182,8 +184,8 @@ public partial class ModConfigPlugin : BaseUnityPlugin
             var sectionTabs = new GameObject("SectionTabs")
                 .ParentTo(content)
                 .AddComponent<PeakHorizontalTabs>();
-            sectionTabs.RectTransform.anchoredPosition = new(175f, -55f);
-            sectionTabs.RectTransform.anchorMax = new(0.87f, 1f);
+            sectionTabs.RectTransform.offsetMin = new Vector2(175f, -95f);
+            sectionTabs.RectTransform.offsetMax = new Vector2(0, -55f);
 
             var moddedSettingsTABS = horizontalTabs.gameObject.AddComponent<ModdedSettingsTABS>();
             moddedSettingsTABS.SettingsMenu = settingsMenu;
@@ -197,7 +199,9 @@ public partial class ModConfigPlugin : BaseUnityPlugin
                 .CreateScrollableContent("TabContent")
                 .ParentTo(content)
                 .ExpandToParent()
-                .SetOffsetMax(new Vector2(0, -110f));
+                // Vanilla's settings parent reserves 61.85 units above the list;
+                // round to 62 and add 55 for our extra section tab row.
+                .SetOffsetMax(new Vector2(0, -117f));
 
             settingsMenu.Content = tabContent.Content;
             settingsMenu.ModTabs = moddedSettingsTABS;

@@ -148,7 +148,8 @@ public partial class ModConfigPlugin : BaseUnityPlugin
                 .SetMultiSelect(true)
                 .SetInitialValue(31) // all bits selected
                 .OnValueChanged(settingsMenu.SetFilter)
-                .SetSize(new(200f, 70f))
+                // Tune the visible height to sit alongside BACK's padded banner sprite.
+                .SetSize(new(200f, 53f))
                 .SetPosition(new Vector2(285f, -160f)); // position needs to be set last
 
             MenuAPI

@@ -41,6 +41,9 @@ public class PeakDropdown : PeakLocalizableElement
 
         dropdownTransform = transform.Find("Dropdown");
         base.RectTransform = dropdownTransform.GetComponent<RectTransform>();
+        // The prefab stretches to its parent until the layout group runs. Fix the anchors now
+        // so SetSize and SetPosition use the requested dimensions even before that first pass.
+        RectTransform.anchorMin = RectTransform.anchorMax = new Vector2(0, 1);
         RectTransform.anchoredPosition = Vector2.zero; // we're using the parent rect positioning
 
         Dropdown = dropdownTransform.GetComponent<TMP_Dropdown>();
@@ -70,7 +73,11 @@ public class PeakDropdown : PeakLocalizableElement
     /// <param name="position"></param>
     public PeakDropdown SetPosition(Vector2 position)
     {
-        position = new(position.x - 100, position.y - -35f); // convert position from dropdown position offset
+        // Convert the dropdown center to its wrapper's upper-left position using its actual size.
+        position = new(
+            position.x - RectTransform.rect.width / 2f,
+            position.y + RectTransform.rect.height / 2f
+        );
         parentRect.anchoredPosition = position;
         return this;
     }

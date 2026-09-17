@@ -27,24 +27,22 @@ public class PeakDropdown : PeakLocalizableElement
     /// </summary>
     public Image Arrow { get; private set; }
 
-    /// <summary>
-    /// VerticalLayoutGroup is used to ensure dropdown size/position information is unaffected by other existing layouts
-    /// </summary>
-    public VerticalLayoutGroup VerticalLayout { get; private set; }
-
-    private Transform? dropdownTransform;
-    private RectTransform parentRect;
-
     private void Awake()
     {
-        parentRect = gameObject.GetComponent<RectTransform>();
+        RectTransform = GetComponent<RectTransform>();
+        var dropdownTransform = transform.Find("Dropdown");
 
-        dropdownTransform = transform.Find("Dropdown");
-        base.RectTransform = dropdownTransform.GetComponent<RectTransform>();
-        // The prefab stretches to its parent until the layout group runs. Fix the anchors now
-        // so SetSize and SetPosition use the requested dimensions even before that first pass.
+        var dropdownRect = dropdownTransform.GetComponent<RectTransform>();
+        // Capture the inner rectangle before changing its parent's anchors and dimensions.
+        var initialSize = dropdownRect.rect.size;
+
+        // All public layout helpers now address this same outer rectangle.
         RectTransform.anchorMin = RectTransform.anchorMax = new Vector2(0, 1);
-        RectTransform.anchoredPosition = Vector2.zero; // we're using the parent rect positioning
+        RectTransform.pivot = new Vector2(0.5f, 0.5f);
+        RectTransform.sizeDelta = initialSize;
+        RectTransform.anchoredPosition = Vector2.zero;
+
+        Utilities.ExpandToParent(dropdownRect);
 
         Dropdown = dropdownTransform.GetComponent<TMP_Dropdown>();
 
@@ -56,30 +54,16 @@ public class PeakDropdown : PeakLocalizableElement
 
         var arrowtransform = dropdownTransform.Find("Arrow");
         Arrow = arrowtransform.GetComponent<Image>();
-
-        // Needed to ensure dropdown size/position information is unaffected by other existing layouts
-        VerticalLayout = gameObject.AddComponent<VerticalLayoutGroup>();
-        VerticalLayout.childControlHeight = false;
-        VerticalLayout.childControlWidth = false;
-        VerticalLayout.childForceExpandHeight = false;
-        VerticalLayout.childForceExpandWidth = false;
-        VerticalLayout.childAlignment = TextAnchor.UpperLeft;
     }
 
     /// <summary>
-    /// Override of PeakElement.SetPosition to correctly set the anchored position of the game object
-    /// PeakElement.SetPosition will not move the correct rect transform (and likely move nothing)
+    /// Sets the outer container's anchored position, exactly like the common layout helper.
+    /// Retained as an instance method for existing callers compiled against PeakDropdown.
     /// </summary>
     /// <param name="position"></param>
     public PeakDropdown SetPosition(Vector2 position)
     {
-        // Convert the dropdown center to its wrapper's upper-left position using its actual size.
-        position = new(
-            position.x - RectTransform.rect.width / 2f,
-            position.y + RectTransform.rect.height / 2f
-        );
-        parentRect.anchoredPosition = position;
-        return this;
+        return ElementExtensions.SetPosition(this, position);
     }
 
     /// <summary>

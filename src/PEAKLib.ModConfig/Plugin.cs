@@ -150,7 +150,7 @@ public partial class ModConfigPlugin : BaseUnityPlugin
                 .OnValueChanged(settingsMenu.SetFilter)
                 // Tune the visible height to sit alongside BACK's padded banner sprite.
                 .SetSize(new(200f, 53f))
-                .SetPosition(new Vector2(285f, -160f)); // position needs to be set last
+                .SetPosition(new Vector2(285f, -160f));
 
             MenuAPI
                 .CreateText("Search")

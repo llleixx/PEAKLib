@@ -15,17 +15,17 @@ public class PeakDropdown : PeakLocalizableElement
     /// <summary>
     /// The dropdown component
     /// </summary>
-    public TMP_Dropdown Dropdown { get; private set; }
+    public TMP_Dropdown Dropdown { get; private set; } = null!;
 
     /// <summary>
     /// The background image component of the dropdown
     /// </summary>
-    public Image Background { get; private set; }
+    public Image Background { get; private set; } = null!;
 
     /// <summary>
     /// The arrow image component of the dropdown
     /// </summary>
-    public Image Arrow { get; private set; }
+    public Image Arrow { get; private set; } = null!;
 
     private void Awake()
     {
